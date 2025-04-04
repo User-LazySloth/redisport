@@ -1,3 +1,54 @@
+diff --git a/Makefile b/Makefile
+index 13a115b22..ffdeb20e3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,11 +1,11 @@
+ # Top level makefile, the real stuff is at ./src/Makefile and in ./modules/Makefile
+ 
+-SUBDIRS = src
++SUBDIRS = deps src
+ ifeq ($(BUILD_WITH_MODULES), yes)
+ 	SUBDIRS += modules
+ endif
+ 
+-default: all
++default: all 
+ 
+ .DEFAULT:
+ 	for dir in $(SUBDIRS); do $(MAKE) -C $$dir $@; done
+diff --git a/deps/Makefile b/deps/Makefile
+index 5593e0cf7..719f687c9 100644
+--- a/deps/Makefile
++++ b/deps/Makefile
+@@ -106,7 +106,7 @@ ARFLAGS=rc
+ 
+ lua: .make-prerequisites
+ 	@printf '%b %b\n' $(MAKECOLOR)MAKE$(ENDCOLOR) $(BINCOLOR)$@$(ENDCOLOR)
+-	cd lua/src && $(MAKE) all CFLAGS="$(LUA_CFLAGS)" MYLDFLAGS="$(LUA_LDFLAGS)" AR="$(AR) $(ARFLAGS)"
++	cd lua/src && $(MAKE) all CFLAGS="$(LUA_CFLAGS)" MYLDFLAGS="$(LUA_LDFLAGS)" MYLIBS="$(LIBS)" AR="$(AR) $(ARFLAGS)"
+ 
+ .PHONY: lua
+ 
+diff --git a/deps/fast_float/fast_float.h b/deps/fast_float/fast_float.h
+index 81d9da50f..6c57e7f00 100644
+--- a/deps/fast_float/fast_float.h
++++ b/deps/fast_float/fast_float.h
+@@ -89,12 +89,15 @@
+ #ifndef FASTFLOAT_FLOAT_COMMON_H
+ #define FASTFLOAT_FLOAT_COMMON_H
+ 
++#define rindex rindex_zos
++#include <string.h>
+ #include <cfloat>
+ #include <cstdint>
+ #include <cassert>
+ #include <cstring>
+ #include <type_traits>
+ #include <system_error>
++#undef rindex
+ #ifdef __has_include
+ #if __has_include(<stdfloat>) && (__cplusplus > 202002L || _MSVC_LANG > 202002L)
+ #include <stdfloat>
 diff --git a/deps/lua/Makefile b/deps/lua/Makefile
 index 209a13244..33c9ec9a8 100644
 --- a/deps/lua/Makefile
@@ -12,7 +63,7 @@ index 209a13244..33c9ec9a8 100644
  # == END OF USER SETTINGS. NO NEED TO CHANGE ANYTHING BELOW THIS LINE =========
  
 diff --git a/deps/lua/src/Makefile b/deps/lua/src/Makefile
-index f3bba2f81..5f70a1a6c 100644
+index f3bba2f81..e7cece63b 100644
 --- a/deps/lua/src/Makefile
 +++ b/deps/lua/src/Makefile
 @@ -10,7 +10,7 @@ PLAT= none
@@ -24,8 +75,17 @@ index f3bba2f81..5f70a1a6c 100644
  RM= rm -f
  LIBS= -lm $(MYLIBS)
  
+@@ -94,7 +94,7 @@ freebsd:
+ 	$(MAKE) all MYCFLAGS="-DLUA_USE_LINUX" MYLIBS="-Wl,-E -lreadline"
+ 
+ generic:
+-	$(MAKE) all MYCFLAGS=
++	$(MAKE) all MYCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN" MYLIBS="$(LIBS)"
+ 
+ linux:
+ 	$(MAKE) all MYCFLAGS=-DLUA_USE_LINUX MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses"
 diff --git a/src/Makefile b/src/Makefile
-index 0eb2cf41b..c14452490 100644
+index 0eb2cf41b..0f8d346ad 100644
 --- a/src/Makefile
 +++ b/src/Makefile
 @@ -23,14 +23,6 @@ CLANG := $(findstring clang,$(shell sh -c '$(CC) --version | head -1'))
@@ -43,6 +103,33 @@ index 0eb2cf41b..c14452490 100644
  ifneq ($(OPTIMIZATION),-O0)
  	OPTIMIZATION+=-fno-omit-frame-pointer
  endif
+@@ -199,6 +191,10 @@ ifeq ($(uname_S),DragonFly)
+ 	# DragonFly
+ 	FINAL_LIBS+= -lpthread -lexecinfo
+ else
++ifeq ($(uname_S),OS390)
++	# OpenBSD
++	FINAL_LIBS+=-llua 
++else
+ ifeq ($(uname_S),OpenBSD)
+ 	# OpenBSD
+ 	FINAL_LIBS+= -lpthread -lexecinfo
+@@ -214,8 +210,8 @@ ifeq ($(uname_S),Haiku)
+ 	FINAL_LIBS+= -lpthread
+ else
+ 	# All the other OSes (notably Linux)
+-	FINAL_LDFLAGS+= -rdynamic
+-	FINAL_LIBS+=-ldl -pthread -lrt
++	FINAL_LDFLAGS+=
++	FINAL_LIBS+=$(LIBS)
+ endif
+ endif
+ endif
+@@ -527,3 +523,4 @@ install: all
+ 
+ uninstall:
+ 	rm -f $(INSTALL_BIN)/{$(REDIS_SERVER_NAME),$(REDIS_BENCHMARK_NAME),$(REDIS_CLI_NAME),$(REDIS_CHECK_RDB_NAME),$(REDIS_CHECK_AOF_NAME),$(REDIS_SENTINEL_NAME)}
++endif
 diff --git a/src/bio.c b/src/bio.c
 index 0bddf8a6b..0c47424a5 100644
 --- a/src/bio.c

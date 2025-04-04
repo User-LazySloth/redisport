@@ -3,23 +3,24 @@
 # REDIS_VERSION="V.R.M" # Specify a stable release
 # export ZOPEN_STABLE_TAG="v${REDIS_VERSION}"
 export ZOPEN_STABLE_URL="https://github.com/redis/redis.git"
-export ZOPEN_STABLE_DEPS="make openssl which pkgconfig check_python"
+export ZOPEN_STABLE_DEPS="make openssl which pkgconfig check_python coreutils"
 export ZOPEN_BUILD_LINE="STABLE"
 export ZOPEN_CATEGORIES="database"
 export ZOPEN_CONFIGURE="skip"
 export ZOPEN_CHECK_OPTS="test"
-export ZOPEN_INSTALL_OPTS="install INSTALL_TOP=\${ZOPEN_INSTALL_DIR}"
+export ZOPEN_INSTALL_OPTS="install PREFIX=\${ZOPEN_INSTALL_DIR}"
 export ZOPEN_COMP="CLANG"
 export ZOPEN_MAKE="zopen_make"
 
 zopen_make() {
-	cd deps; make "$@" fast_float  fpconv  hdr_histogram	hiredis  jemalloc  linenoise  lua; cd -
+	cd deps; make "$@" fast_float  fpconv  hdr_histogram	hiredis  linenoise lua; cd -
 	make "$@"
 }
 
 zopen_pre_patch()
 {
-  export CFLAGS="$CFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D_OPEN_THREADS=2 -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1" 
+  export CFLAGS="$CFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D_OPEN_THREADS=3 -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1" 
+  export CXXFLAGS="$CXXFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D_OPEN_THREADS=3 -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1 -std=c++11" 
 }
 
 zopen_check_results()
