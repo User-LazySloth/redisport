@@ -9,6 +9,6 @@ node('linux')
       userRemoteConfigs: [[url: 'https://github.com/zopencommunity/redisport.git']]])
   }
   stage('Build') {
-    build job: 'Port-Pipeline', parameters: [string(name: 'PORT_GITHUB_REPO', value: 'https://github.com/zopencommunity/redisport.git'), string(name: 'PORT_DESCRIPTION', value: 'Redis is an in-memory database that persists on disk.' ), string(name: 'BUILD_LINE', value: 'STABLE') ]
+    build job: 'Port-Pipeline', parameters: [string(name: 'PORT_GITHUB_REPO', value: 'https://github.com/zopencommunity/redisport.git'), string(name: 'PORT_DESCRIPTION', value: 'Redis is an in-memory database that persists on disk.' ), string(name: 'BUILD_LINE', value: 'STABLE'), string(name: 'NODE_LABEL', value: "v3r1" ) ]
   }
 }
