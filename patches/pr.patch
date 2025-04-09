@@ -1,7 +1,7 @@
-diff --git a/Makefile b/Makefile
-index 13a115b22..ffdeb20e3 100644
---- a/Makefile
-+++ b/Makefile
+diff --git i/Makefile w/Makefile
+index 13a115b..ffdeb20 100644
+--- i/Makefile
++++ w/Makefile
 @@ -1,11 +1,11 @@
  # Top level makefile, the real stuff is at ./src/Makefile and in ./modules/Makefile
  
@@ -16,10 +16,10 @@ index 13a115b22..ffdeb20e3 100644
  
  .DEFAULT:
  	for dir in $(SUBDIRS); do $(MAKE) -C $$dir $@; done
-diff --git a/deps/Makefile b/deps/Makefile
-index 5593e0cf7..719f687c9 100644
---- a/deps/Makefile
-+++ b/deps/Makefile
+diff --git i/deps/Makefile w/deps/Makefile
+index 5593e0c..719f687 100644
+--- i/deps/Makefile
++++ w/deps/Makefile
 @@ -106,7 +106,7 @@ ARFLAGS=rc
  
  lua: .make-prerequisites
@@ -29,10 +29,10 @@ index 5593e0cf7..719f687c9 100644
  
  .PHONY: lua
  
-diff --git a/deps/fast_float/fast_float.h b/deps/fast_float/fast_float.h
-index 81d9da50f..6c57e7f00 100644
---- a/deps/fast_float/fast_float.h
-+++ b/deps/fast_float/fast_float.h
+diff --git i/deps/fast_float/fast_float.h w/deps/fast_float/fast_float.h
+index 81d9da5..6c57e7f 100644
+--- i/deps/fast_float/fast_float.h
++++ w/deps/fast_float/fast_float.h
 @@ -89,12 +89,15 @@
  #ifndef FASTFLOAT_FLOAT_COMMON_H
  #define FASTFLOAT_FLOAT_COMMON_H
@@ -49,10 +49,10 @@ index 81d9da50f..6c57e7f00 100644
  #ifdef __has_include
  #if __has_include(<stdfloat>) && (__cplusplus > 202002L || _MSVC_LANG > 202002L)
  #include <stdfloat>
-diff --git a/deps/lua/Makefile b/deps/lua/Makefile
-index 209a13244..33c9ec9a8 100644
---- a/deps/lua/Makefile
-+++ b/deps/lua/Makefile
+diff --git i/deps/lua/Makefile w/deps/lua/Makefile
+index 209a132..33c9ec9 100644
+--- i/deps/lua/Makefile
++++ w/deps/lua/Makefile
 @@ -33,7 +33,7 @@ INSTALL_DATA= $(INSTALL) -m 0644
  
  # Utilities.
@@ -62,10 +62,10 @@ index 209a13244..33c9ec9a8 100644
  
  # == END OF USER SETTINGS. NO NEED TO CHANGE ANYTHING BELOW THIS LINE =========
  
-diff --git a/deps/lua/src/Makefile b/deps/lua/src/Makefile
-index f3bba2f81..e7cece63b 100644
---- a/deps/lua/src/Makefile
-+++ b/deps/lua/src/Makefile
+diff --git i/deps/lua/src/Makefile w/deps/lua/src/Makefile
+index f3bba2f..e7cece6 100644
+--- i/deps/lua/src/Makefile
++++ w/deps/lua/src/Makefile
 @@ -10,7 +10,7 @@ PLAT= none
  CC?= gcc
  CFLAGS= -O2 -Wall $(MYCFLAGS)
@@ -84,10 +84,10 @@ index f3bba2f81..e7cece63b 100644
  
  linux:
  	$(MAKE) all MYCFLAGS=-DLUA_USE_LINUX MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses"
-diff --git a/src/Makefile b/src/Makefile
-index 0eb2cf41b..0f8d346ad 100644
---- a/src/Makefile
-+++ b/src/Makefile
+diff --git i/src/Makefile w/src/Makefile
+index 8b0e3d9..e792326 100644
+--- i/src/Makefile
++++ w/src/Makefile
 @@ -23,14 +23,6 @@ CLANG := $(findstring clang,$(shell sh -c '$(CC) --version | head -1'))
  # Optimization flags. To override, the OPTIMIZATION variable can be passed, but
  # some automatic defaults are added to it. To specify optimization flags
@@ -103,7 +103,7 @@ index 0eb2cf41b..0f8d346ad 100644
  ifneq ($(OPTIMIZATION),-O0)
  	OPTIMIZATION+=-fno-omit-frame-pointer
  endif
-@@ -199,6 +191,10 @@ ifeq ($(uname_S),DragonFly)
+@@ -201,6 +193,10 @@ ifeq ($(uname_S),DragonFly)
  	# DragonFly
  	FINAL_LIBS+= -lpthread -lexecinfo
  else
@@ -114,7 +114,7 @@ index 0eb2cf41b..0f8d346ad 100644
  ifeq ($(uname_S),OpenBSD)
  	# OpenBSD
  	FINAL_LIBS+= -lpthread -lexecinfo
-@@ -214,8 +210,8 @@ ifeq ($(uname_S),Haiku)
+@@ -216,8 +212,8 @@ ifeq ($(uname_S),Haiku)
  	FINAL_LIBS+= -lpthread
  else
  	# All the other OSes (notably Linux)
@@ -125,15 +125,15 @@ index 0eb2cf41b..0f8d346ad 100644
  endif
  endif
  endif
-@@ -527,3 +523,4 @@ install: all
+@@ -535,3 +531,4 @@ install: all
  
  uninstall:
  	rm -f $(INSTALL_BIN)/{$(REDIS_SERVER_NAME),$(REDIS_BENCHMARK_NAME),$(REDIS_CLI_NAME),$(REDIS_CHECK_RDB_NAME),$(REDIS_CHECK_AOF_NAME),$(REDIS_SENTINEL_NAME)}
 +endif
-diff --git a/src/bio.c b/src/bio.c
-index 0bddf8a6b..0c47424a5 100644
---- a/src/bio.c
-+++ b/src/bio.c
+diff --git i/src/bio.c w/src/bio.c
+index 0bddf8a..0c47424 100644
+--- i/src/bio.c
++++ w/src/bio.c
 @@ -397,8 +397,8 @@ void bioKillThreads(void) {
      unsigned long j;
  
@@ -145,10 +145,10 @@ index 0bddf8a6b..0c47424a5 100644
              if ((err = pthread_join(bio_threads[j],NULL)) != 0) {
                  serverLog(LL_WARNING,
                      "Bio worker thread #%lu can not be joined: %s",
-diff --git a/src/config.h b/src/config.h
-index ec0fb1529..ed19603c4 100644
---- a/src/config.h
-+++ b/src/config.h
+diff --git i/src/config.h w/src/config.h
+index ec0fb15..ed19603 100644
+--- i/src/config.h
++++ w/src/config.h
 @@ -223,7 +223,7 @@ void setproctitle(const char *fmt, ...);
      defined(apollo) || defined(__convex__) || defined(_CRAY) || \
      defined(__hppa) || defined(__hp9000) || \
@@ -158,10 +158,10 @@ index ec0fb1529..ed19603c4 100644
  #define BYTE_ORDER	BIG_ENDIAN
  #endif
  #endif /* linux */
-diff --git a/src/debug.c b/src/debug.c
-index 5584ae387..9e26c471a 100644
---- a/src/debug.c
-+++ b/src/debug.c
+diff --git i/src/debug.c w/src/debug.c
+index 5584ae3..9e26c47 100644
+--- i/src/debug.c
++++ w/src/debug.c
 @@ -2274,7 +2274,7 @@ int memtest_test_linux_anonymous_maps(void) {
  
  static void killMainThread(void) {
@@ -209,10 +209,10 @@ index 5584ae387..9e26c471a 100644
      if (eip != NULL)
          dumpCodeAroundEIP(eip);
  #endif
-diff --git a/src/iothread.c b/src/iothread.c
-index e3da683d5..3c1bcafc9 100644
---- a/src/iothread.c
-+++ b/src/iothread.c
+diff --git i/src/iothread.c w/src/iothread.c
+index e3da683..3c1bcaf 100644
+--- i/src/iothread.c
++++ w/src/iothread.c
 @@ -616,15 +616,15 @@ void killIOThreads(void) {
  
      int err, j;
@@ -233,3 +233,31 @@ index e3da683d5..3c1bcafc9 100644
              }
          }
      }
+diff --git i/src/server.c w/src/server.c
+index e799118..32ed2f7 100644
+--- i/src/server.c
++++ w/src/server.c
+@@ -2671,8 +2671,8 @@ void resetServerStats(void) {
+  * can work reliably (default cancelability type is PTHREAD_CANCEL_DEFERRED).
+  * Needed for pthread_cancel used by the fast memory test used by the crash report. */
+ void makeThreadKillable(void) {
+-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
++    //pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
++    //pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+ }
+ 
+ void initServer(void) {
+diff --git i/src/util.c w/src/util.c
+index ba3d9d0..34d5358 100644
+--- i/src/util.c
++++ w/src/util.c
+@@ -1085,7 +1085,7 @@ sds getAbsolutePath(char *filename) {
+  * i.e timezone variables are linux specific.
+  */
+ long getTimeZone(void) {
+-#if defined(__linux__) || defined(__sun)
++#if defined(__linux__) || defined(__sun) || defined(__MVS__)
+     return timezone;
+ #else
+     struct timezone tz;

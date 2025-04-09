@@ -19,8 +19,8 @@ zopen_make() {
 
 zopen_pre_patch()
 {
-  export CFLAGS="$CFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D_OPEN_THREADS=3 -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1" 
-  export CXXFLAGS="$CXXFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D_OPEN_THREADS=3 -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1 -std=c++11" 
+  export CFLAGS="$CFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1" 
+  export CXXFLAGS="$CXXFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1 -std=c++11" 
 }
 
 zopen_check_results()
