@@ -14,8 +14,8 @@ export ZOPEN_MAKE="zopen_make"
 export ZOPEN_SYSTEM_PREREQ="zos25"
 
 zopen_make() {
-	cd deps; make "$@" fast_float  fpconv  hdr_histogram	hiredis  linenoise lua; cd -
-	make "$@"
+	cd deps; make "$@" BUILD_TLS=yes fast_float  fpconv  hdr_histogram	hiredis  linenoise lua; cd -
+	make "$@" BUILD_TLS=yes
 }
 
 zopen_pre_patch()
