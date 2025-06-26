@@ -24,6 +24,15 @@ zopen_pre_patch()
   export CXXFLAGS="$CXXFLAGS $CPPFLAGS -mzos-target=zosv2r5 -D__XPLAT -D__thread= -DMAP_ANON=0 -D_UNIX03_SOURCE=1 -std=c++11" 
 }
 
+zopen_post_install() {
+  install_dir=$1
+  echo $install_dir
+  cp -f ./redis.conf $install_dir/
+  if [ ! -f "$install_dir/redis.conf" ]; then
+    printError "redis.conf not copied"
+  fi
+}
+
 zopen_check_results()
 {
   dir="$1"
