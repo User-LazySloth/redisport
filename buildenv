@@ -25,10 +25,12 @@ zopen_pre_patch()
 }
 
 zopen_post_install() {
-  install_dir=$1
-  echo $install_dir
-  cp -f ./redis.conf $install_dir/
-  if [ ! -f "$install_dir/redis.conf" ]; then
+  ZOPEN_INSTALL_DIR=$1
+  echo $ZOPEN_INSTALL_DIR
+  # Ensure the target directory exists
+  mkdir -p $ZOPEN_INSTALL_DIR/etc
+  cp -f ./redis.conf $ZOPEN_INSTALL_DIR/etc
+  if [ ! -f "$ZOPEN_INSTALL_DIR/etc/redis.conf" ]; then
     printError "redis.conf not copied"
   fi
 }
