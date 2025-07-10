@@ -7,7 +7,7 @@ export ZOPEN_STABLE_DEPS="tcl tcltls make openssl which pkgconfig check_python c
 export ZOPEN_BUILD_LINE="STABLE"
 export ZOPEN_CATEGORIES="database"
 export ZOPEN_CONFIGURE="skip"
-export ZOPEN_CHECK="./test_run.sh"
+export ZOPEN_CHECK="../test_run.sh"
 export ZOPEN_CHECK_OPTS="skip"
 export ZOPEN_INSTALL_OPTS="install PREFIX=\${ZOPEN_INSTALL_DIR}"
 export ZOPEN_COMP="CLANG"
@@ -38,13 +38,27 @@ zopen_post_install() {
 
 zopen_check_results()
 {
-  chk="./test_run.log"
+  chk="../test_run.log"
 
-  # Count actual errors and passes based on log patterns
+  # Counting the actual errors and passes based on log patterns
   actualErrors=$(grep -o "EXCEPTION IN: " "$chk" | wc -l)
   actualPass=$(grep -o "LOG FOR: " "$chk" | wc -l)
 
-  # Calculate total tests and expected failures
+  # Generating the timestamp
+  timestamp=$(date +%Y%m%d_%H%M%S)
+
+  # Defining the new log path
+  new_log="../log.STABLE/test_run_${timestamp}.log"
+
+  # Moving test_run.log to the new location
+  if [[ -f "$chk" ]]; then
+    mv "$chk" "$new_log"
+    chk="$new_log"
+  else
+    echo "Warning: test_run.log not found."
+  fi  
+
+  # Calculating the total tests and expected failures
   totalTests=$((actualPass + actualErrors))
   expectedErrors="2"
 

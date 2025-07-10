@@ -1,16 +1,3 @@
-diff --git a/tests/test_helper.tcl b/tests/test_helper.tcl
-index 05197b026..cbaf6b5dc 100644
---- a/tests/test_helper.tcl
-+++ b/tests/test_helper.tcl
-@@ -88,7 +88,7 @@ set ::force_resp3 0
- # The server is responsible of showing the result to the user, and exit with
- # the appropriate exit code depending on the test outcome.
- set ::client 0
--set ::numclients 16
-+set ::numclients 1
- 
- # This function is called by one of the test clients when it receives
- # a "run" command from the server, with a filename as data.
 diff --git a/tests/unit/introspection.tcl b/tests/unit/introspection.tcl
 index eaeff5da7..54c64ee64 100644
 --- a/tests/unit/introspection.tcl
@@ -28,19 +15,6 @@ index eaeff5da7..54c64ee64 100644
      }
  
      test {CONFIG SET duplicate configs} {
-diff --git a/tests/unit/scripting.tcl b/tests/unit/scripting.tcl
-index 05a37c00e..3c42e1b30 100644
---- a/tests/unit/scripting.tcl
-+++ b/tests/unit/scripting.tcl
-@@ -751,7 +751,7 @@ start_server {tags {"scripting"}} {
-         # Use a non blocking client to speedup the loop.
-         set rd [redis_deferring_client]
-         for {set j 0} {$j < 10000} {incr j} {
--            run_script_on_connection $rd {return redis.call("incr",KEYS[1])} 1 x
-+            $rd eval {return redis.call("incr",KEYS[1])} 1 x
-         }
-         for {set j 0} {$j < 10000} {incr j} {
-             $rd read
 diff --git a/tests/unit/type/set.tcl b/tests/unit/type/set.tcl
 index c194ee278..1bfd9c3e6 100644
 --- a/tests/unit/type/set.tcl

@@ -1,0 +1,33 @@
+diff --git a/tests/support/util.tcl b/tests/support/util.tcl
+index 0d7d885..0b06e72 100644
+--- a/tests/support/util.tcl
++++ b/tests/support/util.tcl
+@@ -493,6 +493,7 @@ proc roundFloat f {
+ 
+ set ::last_port_attempted 0
+ proc find_available_port {start count} {
++    set start 21079
+     set port [expr $::last_port_attempted + 1]
+     for {set attempts 0} {$attempts < $count} {incr attempts} {
+         if {$port < $start || $port >= $start+$count} {
+@@ -505,6 +506,7 @@ proc find_available_port {start count} {
+             if {$fd1 != -1} {
+                 close $fd1
+             }
++            return $port
+         } else {
+             close $fd1
+             close $fd2
+diff --git a/tests/test_helper.tcl b/tests/test_helper.tcl
+index 05197b0..cbaf6b5 100644
+--- a/tests/test_helper.tcl
++++ b/tests/test_helper.tcl
+@@ -88,7 +88,7 @@ set ::force_resp3 0
+ # The server is responsible of showing the result to the user, and exit with
+ # the appropriate exit code depending on the test outcome.
+ set ::client 0
+-set ::numclients 16
++set ::numclients 1
+ 
+ # This function is called by one of the test clients when it receives
+ # a "run" command from the server, with a filename as data.
