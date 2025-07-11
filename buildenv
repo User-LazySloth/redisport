@@ -3,11 +3,12 @@
 REDIS_VERSION="8.0.3" # Specify a stable release
 export ZOPEN_STABLE_TAG="${REDIS_VERSION}"
 export ZOPEN_STABLE_URL="https://github.com/redis/redis.git"
-export ZOPEN_STABLE_DEPS="make openssl which pkgconfig check_python coreutils"
+export ZOPEN_STABLE_DEPS="tcl tcltls make openssl which pkgconfig check_python coreutils bash findutils grep"
 export ZOPEN_BUILD_LINE="STABLE"
 export ZOPEN_CATEGORIES="database"
 export ZOPEN_CONFIGURE="skip"
-export ZOPEN_CHECK_OPTS="test"
+export ZOPEN_CHECK="../test_run.sh"
+export ZOPEN_CHECK_OPTS="skip"
 export ZOPEN_INSTALL_OPTS="install PREFIX=\${ZOPEN_INSTALL_DIR}"
 export ZOPEN_COMP="CLANG"
 export ZOPEN_MAKE="zopen_make"
@@ -37,15 +38,36 @@ zopen_post_install() {
 
 zopen_check_results()
 {
-  dir="$1"
-  pfx="$2"
-  chk="$1/$2_check.log"
+  chk="../test_run.log"
 
-  # Echo the following information to gauge build health
-  echo "actualFailures:0"
-  echo "totalTests:1"
-  echo "expectedFailures:0"
-  echo "expectedTotalTests:1"
+  # Counting the actual errors and passes based on log patterns
+  actualErrors=$(grep -o "EXCEPTION IN: " "$chk" | wc -l)
+  actualPass=$(grep -o "LOG FOR: " "$chk" | wc -l)
+
+  # Generating the timestamp
+  timestamp=$(date +%Y%m%d_%H%M%S)
+
+  # Defining the new log path
+  new_log="../log.STABLE/test_run_${timestamp}.log"
+
+  # Moving test_run.log to the new location
+  if [[ -f "$chk" ]]; then
+    mv "$chk" "$new_log"
+    chk="$new_log"
+  else
+    echo "Warning: test_run.log not found."
+  fi  
+
+  # Calculating the total tests and expected failures
+  totalTests=$((actualPass + actualErrors))
+  expectedErrors="2"
+
+  cat <<ZZ
+actualPassed:$actualPass
+actualFailures:$actualErrors
+totalTests:$totalTests
+expectedFailures:$expectedErrors
+ZZ
 }
 
 zopen_get_version()
