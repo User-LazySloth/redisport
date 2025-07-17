@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby POI Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 3px solid white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            margin-left: 10px;
+        }
+
+        .results-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .result-card {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .result-card:hover {
+            border-color: #0ea5e9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15);
+        }
+
+        .result-card.expanded {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%);
+        }
+
+        .result-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0ea5e9;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-type {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .result-detail-item {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .click-hint {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(14, 165, 233, 0.1);
+            color: #0ea5e9;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .detailed-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            display: none;
+        }
+
+        .detailed-info.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .detailed-info h4 {
+            color: #0ea5e9;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .info-section {
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #666;
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .leaderboard-card {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-card:hover {
+            border-color: #0ea5e9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15);
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .rank-badge.gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+        }
+
+        .rank-badge.silver {
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+        }
+
+        .rank-badge.bronze {
+            background: linear-gradient(135deg, #92400e 0%, #b45309 100%);
+        }
+
+        .query-info {
+            flex: 1;
+            margin: 0 20px;
+        }
+
+        .query-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .query-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .search-count {
+            background: rgba(14, 165, 233, 0.1);
+            color: #0ea5e9;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            border: 2px solid #a7f3d0;
+            color: #065f46;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 2px solid #fecaca;
+            color: #dc2626;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0ea5e9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 2px solid #e1e5e9;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0ea5e9;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tab-content {
+                padding: 25px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                text-align: center;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .leaderboard-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .query-info {
+                margin: 0;
+            }
+
+            .click-hint {
+                position: static;
+                margin-top: 10px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ POI Manager</h1>
+            <p>Search, Add, and Discover Points of Interest</p>
+            
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('search')">🔍 Search Places</button>
+                <button class="nav-tab" onclick="switchTab('add')">➕ Add Location</button>
+                <button class="nav-tab" onclick="switchTab('leaderboard')">🏆 Top Searches</button>
+            </div>
+        </div>
+        
+        <!-- Search Tab -->
+        <div class="tab-content active" id="searchTab">
+            <div class="form-container">
+                <form id="searchForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="lat">📍 Latitude</label>
+                            <input type="text" id="lat" value="12.9716" placeholder="Enter latitude" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lon">📍 Longitude</label>
+                            <input type="text" id="lon" value="77.5946" placeholder="Enter longitude" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="radius">📏 Search Radius (meters)</label>
+                        <input type="text" id="radius" value="500" placeholder="Enter search radius" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-full" id="searchBtn">
+                        🔍 Search Nearby Places
+                    </button>
+                </form>
+                
+                <div class="results-container" id="resultsContainer">
+                    <div class="results-header">
+                        <!-- MODIFICATION 1: Added a span to display search timing -->
+                        <span>📋 Search Results <span id="search-timing" style="font-weight: normal; color: #666; font-size: 0.9em; margin-left: 8px;"></span></span>
+                        <small style="color: #666; font-weight: normal; font-size: 0.9rem;">Click on any card to view detailed information</small>
+                    </div>
+                    <div class="results-grid" id="resultsGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Location Tab -->
+        <div class="tab-content" id="addTab">
+            <div class="form-container">
+                <div id="addMessage"></div>
+                <form id="addForm">
+                    <div class="form-group">
+                        <label for="addId">🆔 Location ID</label>
+                        <input type="text" id="addId" placeholder="Enter unique ID for this location" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="addLat">📍 Latitude</label>
+                            <input type="number" step="any" id="addLat" placeholder="Enter latitude" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="addLon">📍 Longitude</label>
+                            <input type="number" step="any" id="addLon" placeholder="Enter longitude" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addName">🏢 Name</label>
+                        <input type="text" id="addName" placeholder="Enter location name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addAmenity">🏷️ Category/Amenity</label>
+                        <select id="addAmenity" required>
+                            <option value="">Select a category</option>
+                            <option value="restaurant">🍽️ Restaurant</option>
+                            <option value="cafe">☕ Cafe</option>
+                            <option value="hospital">🏥 Hospital</option>
+                            <option value="school">🏫 School</option>
+                            <option value="bank">🏦 Bank</option>
+                            <option value="pharmacy">💊 Pharmacy</option>
+                            <option value="gas_station">⛽ Gas Station</option>
+                            <option value="shopping_mall">🛍️ Shopping Mall</option>
+                            <option value="park">🌳 Park</option>
+                            <option value="gym">💪 Gym</option>
+                            <option value="hotel">🏨 Hotel</option>
+                            <option value="library">📚 Library</option>
+                            <option value="cinema">🎬 Cinema</option>
+                            <option value="other">📍 Other</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-full" id="addBtn">
+                        ➕ Add New Location
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div class="tab-content" id="leaderboardTab">
+            <div class="form-container">
+                <div class="results-header">
+                    <span>🏆 Most Searched Areas</span>
+                    <button class="btn btn-refresh" onclick="loadLeaderboard()">🔄 Refresh</button>
+                </div>
+                
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalQueries">-</div>
+                        <div class="stat-label">Total Searches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="uniqueAreas">-</div>
+                        <div class="stat-label">Unique Areas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="topQueryCount">-</div>
+                        <div class="stat-label">Most Popular Count</div>
+                    </div>
+                </div>
+                
+                <div id="leaderboardContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <span>Loading leaderboard...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+            
+            // Load leaderboard data when switching to that tab
+            if (tabName === 'leaderboard') {
+                loadLeaderboard();
+            }
+        }
+
+        // MODIFICATION 2: Updated search functionality to include a timer
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const lat = document.getElementById('lat').value;
+            const lon = document.getElementById('lon').value;
+            const radius = document.getElementById('radius').value;
+            const searchBtn = document.getElementById('searchBtn');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const timingSpan = document.getElementById('search-timing');
+            
+            // Clear previous timing and show loading state
+            timingSpan.textContent = '';
+            searchBtn.innerHTML = '<div class="loading"><div class="spinner"></div>Searching...</div>';
+            searchBtn.disabled = true;
+            
+            // Start timer
+            const startTime = performance.now();
+            
+            try {
+                const res = await fetch(`/search?lat=${lat}&lon=${lon}&radius=${radius}`);
+                const data = await res.json();
+                
+                // Clear previous results
+                resultsGrid.innerHTML = '';
+                
+                if (data && data.length > 0) {
+                    // Display each result as a card
+                    data.forEach((place, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'result-card';
+                        
+                        // Handle different data structures
+                        const name = place.Name || place.name || place.display_name || `Location ${index + 1}`;
+                        const type = place.Amenity || place.type || place.category || 'Place';
+                        const latitude = place.Latitude || place.lat || '';
+                        const longitude = place.Longitude || place.lon || '';
+                        const id = place.ID || place.id || '';
+                        
+                        card.innerHTML = `
+                            <div class="click-hint">Click to expand</div>
+                            <div class="result-name">
+                                🏢 ${name}
+                            </div>
+                            <div class="result-type">${type}</div>
+                            <div class="result-details">
+                                ${id ? `<div class="result-detail-item">🆔 ID: ${id}</div>` : ''}
+                                ${latitude ? `<div class="result-detail-item">📍 Lat: ${latitude}</div>` : ''}
+                                ${longitude ? `<div class="result-detail-item">📍 Lon: ${longitude}</div>` : ''}
+                            </div>
+                            <div class="detailed-info" id="details-${index}">
+                                <h4>📋 Complete Information</h4>
+                                <div class="info-section">
+                                    <div class="info-label">Raw Data:</div>
+                                    <div class="info-value">${JSON.stringify(place, null, 2)}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add click event to toggle detailed info
+                        card.addEventListener('click', function(e) {
+                            const detailsDiv = card.querySelector('.detailed-info');
+                            const clickHint = card.querySelector('.click-hint');
+                            
+                            if (detailsDiv.classList.contains('show')) {
+                                // Collapse
+                                detailsDiv.classList.remove('show');
+                                card.classList.remove('expanded');
+                                clickHint.textContent = 'Click to expand';
+                            } else {
+                                // Expand
+                                detailsDiv.classList.add('show');
+                                card.classList.add('expanded');
+                                clickHint.textContent = 'Click to collapse';
+                            }
+                        });
+                        
+                        resultsGrid.appendChild(card);
+                    });
+                } else if (Array.isArray(data) && data.length === 0) {
+                    resultsGrid.innerHTML = '<div class="no-results">🔍 No places found in this area. Try increasing the search radius or add some locations first.</div>';
+                } else {
+                    // Fallback: display raw JSON data
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <div class="click-hint">Click to expand</div>
+                        <div class="result-name">📋 Raw Data</div>
+                        <div class="result-details">
+                            <div class="result-detail-item">API Response Data</div>
+                        </div>
+                        <div class="detailed-info">
+                            <h4>📋 Complete Information</h4>
+                            <div class="info-section">
+                                <div class="info-label">Raw Response:</div>
+                                <div class="info-value">${JSON.stringify(data, null, 2)}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add click event
+                    card.addEventListener('click', function() {
+                        const detailsDiv = card.querySelector('.detailed-info');
+                        const clickHint = card.querySelector('.click-hint');
+                        
+                        if (detailsDiv.classList.contains('show')) {
+                            detailsDiv.classList.remove('show');
+                            card.classList.remove('expanded');
+                            clickHint.textContent = 'Click to expand';
+                        } else {
+                            detailsDiv.classList.add('show');
+                            card.classList.add('expanded');
+                            clickHint.textContent = 'Click to collapse';
+                        }
+                    });
+                    
+                    resultsGrid.appendChild(card);
+                }
+                
+                resultsContainer.classList.add('show');
+                
+            } catch (error) {
+                resultsGrid.innerHTML = `
+                    <div class="error-message">
+                        ❌ Error: Unable to fetch nearby locations. Please check your connection and try again.
+                    </div>
+                `;
+                resultsContainer.classList.add('show');
+            } finally {
+                // Stop timer and display duration
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                timingSpan.textContent = `(found in ${Math.round(duration)} ms)`;
+
+                // Reset button
+                searchBtn.innerHTML = '🔍 Search Nearby Places';
+                searchBtn.disabled = false;
+            }
+        });
+
+        // Add location functionality
+        document.getElementById('addForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('addId').value;
+            const lat = parseFloat(document.getElementById('addLat').value);
+            const lon = parseFloat(document.getElementById('addLon').value);
+            const name = document.getElementById('addName').value;
+            const amenity = document.getElementById('addAmenity').value;
+            const addBtn = document.getElementById('addBtn');
+            const messageDiv = document.getElementById('addMessage');
+            
+            // Show loading state
+            addBtn.innerHTML = '<div class="loading"><div class="spinner"></div>Adding Location...</div>';
+            addBtn.disabled = true;
+            messageDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/add_location', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ID: id,
+                        Latitude: lat,
+                        Longitude: lon,
+                        Name: name,
+                        Amenity: amenity
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.innerHTML = `
+                        <div class="success-message">
+                            ✅ Success! Location "${name}" has been added successfully.
+                        </div>
+                    `;
+                    // Reset form
+                    document.getElementById('addForm').reset();
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="error-message">
+                            ❌ Error: ${result.error || 'Failed to add location'}
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                messageDiv.innerHTML = `
+                    <div class="error-message">
+                        ❌ Error: Unable to add location. Please check your connection and try again.
+                    </div>
+                `;
+            } finally {
+                // Reset button
+                addBtn.innerHTML = '➕ Add New Location';
+                addBtn.disabled = false;
+            }
+        });
+
+        // Leaderboard functionality
+        async function loadLeaderboard() {
+            const container = document.getElementById('leaderboardContainer');
+            const totalQueriesSpan = document.getElementById('totalQueries');
+            const uniqueAreasSpan = document.getElementById('uniqueAreas');
+            const topQueryCountSpan = document.getElementById('topQueryCount');
+            
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading leaderboard...</span></div>';
+            
+            try {
+                const response = await fetch('/top_queries');
+                const data = await response.json();
+                
+                container.innerHTML = '';
+                
+                if (data && data.length > 0) {
+                    // Update stats
+                    const totalQueries = data.reduce((sum, item) => sum + item.count, 0);
+                    totalQueriesSpan.textContent = totalQueries;
+                    uniqueAreasSpan.textContent = data.length;
+                    topQueryCountSpan.textContent = data[0].count;
+                    
+                    // Create leaderboard cards
+                    data.forEach((item, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'leaderboard-card';
+                        
+                        // Parse query to extract coordinates
+                        const queryParts = item.query.split(':');
+                        let locationInfo = 'Unknown Location';
+                        if (queryParts.length >= 5) {
+                            const lat = parseFloat(queryParts[2]).toFixed(4);
+                            const lon = parseFloat(queryParts[3]).toFixed(4);
+                            const radius = queryParts[4];
+                            locationInfo = `Lat: ${lat}, Lon: ${lon} (${radius}m radius)`;
+                        }
+                        
+                        // Determine rank styling
+                        let rankClass = '';
+                        let rankEmoji = '';
+                        if (index === 0) {
+                            rankClass = 'gold';
+                            rankEmoji = '🥇';
+                        } else if (index === 1) {
+                            rankClass = 'silver';
+                            rankEmoji = '🥈';
+                        } else if (index === 2) {
+                            rankClass = 'bronze';
+                            rankEmoji = '🥉';
+                        } else {
+                            rankEmoji = '📍';
+                        }
+                        
+                        card.innerHTML = `
+                            <div class="rank-badge ${rankClass}">
+                                ${index < 3 ? rankEmoji : index + 1}
+                            </div>
+                            <div class="query-info">
+                                <div class="query-text">Search Area #${index + 1}</div>
+                                <div class="query-details">${locationInfo}</div>
+                            </div>
+                            <div class="search-count">
+                                ${item.count} searches
+                            </div>
+                        `;
+                        
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<div class="no-results">📊 No search data available yet. Perform some searches to see the leaderboard!</div>';
+                    totalQueriesSpan.textContent = '0';
+                    uniqueAreasSpan.textContent = '0';
+                    topQueryCountSpan.textContent = '0';
+                }
+                
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        ❌ Error: Unable to load leaderboard data. Please check your connection and try again.
+                    </div>
+                `;
+                totalQueriesSpan.textContent = '-';
+                uniqueAreasSpan.textContent = '-';
+                topQueryCountSpan.textContent = '-';
+            }
+        }
+
+        // Load leaderboard on page load if that tab is active
+        document.addEventListener('DOMContentLoaded', function() {
+            // You can uncomment the line below to auto-load leaderboard on page load
+            // loadLeaderboard();
+        });
+    </script>
+</body>
+</html>
